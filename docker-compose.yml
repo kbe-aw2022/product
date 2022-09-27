@@ -1,0 +1,41 @@
+version: '3.3'
+
+services:
+  server:
+    container_name: product
+    ports:
+      - "8090:8090"
+    environment:
+      - spring.datasource.url=jdbc:mysql://productdb:3306/productdb
+      - spring_rabbitmq_host=rabbit
+      - spring_rabbitmq_port=5672
+      - spring_rabbitmq_username=guest
+      - spring_rabbitmq_password=guest
+
+    build: .
+    restart: on-failure
+    depends_on:
+      - productdb
+
+    networks:
+      - default
+      - rabbitmq_default
+      - warehouse_default
+
+  productdb:
+      image: mysql:5.7
+      expose:
+        - 3306
+      environment:
+        - MYSQL_ROOT_PASSWORD=password
+        - MYSQL_DATABASE=productdb
+        - MYSQL_USER=user
+        - MYSQL_PASSWORD=password
+
+networks:
+  default:
+    internal: true
+  rabbitmq_default:
+    external: true
+  warehouse_default:
+    external: true
